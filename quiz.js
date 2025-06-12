@@ -23,7 +23,7 @@ const questions = [
   {
     phase: 2,
     question: "Qual seu estilo de música preferido?",
-    answers: ["KPOP/Sertanejo", "Funk", "Indie Pop"],
+    answers: ["KPOP/sertanejo", "Funk", "Indie Pop"],
     correct: 0
   },
   {
@@ -44,7 +44,7 @@ const questions = [
     phase: 3,
     question: "Quem é mais carinhoso?",
     answers: ["Ela", "Ele", "Os dois"],
-    correct: 0
+    correct: 1
   },
   {
     phase: 3,
@@ -69,19 +69,21 @@ const questions = [
 ];
 
 let currentQuestion = 0;
+let score = 0;
 
 function loadQuestion() {
   const q = questions[currentQuestion];
   const quizContainer = document.getElementById("quiz");
   quizContainer.innerHTML = `
-    <h2>Fase ${q.phase}</h2>
-    <p>${q.question}</p>
-    <div class="answers">
-      ${q.answers.map((a, i) => `<button onclick="checkAnswer(${i})">${a}</button>`).join("")}
+    <div class="question-container">
+      <h2>Fase ${q.phase}</h2>
+      <p class="question-text">${q.question}</p>
+      <div class="answers">
+        ${q.answers.map((a, i) => `<button class="answer-btn" onclick="checkAnswer(${i})">${a}</button>`).join("")}
+      </div>
     </div>
   `;
   updateProgressBar();
-  clearInterval(timerInterval); // para contador se estava rodando (por precaução)
 }
 
 function checkAnswer(selected) {
@@ -89,6 +91,7 @@ function checkAnswer(selected) {
   const isCorrect = selected === question.correct;
 
   if (isCorrect) {
+    score++;
     currentQuestion++;
     if (currentQuestion < questions.length) {
       loadQuestion();
@@ -103,38 +106,40 @@ function checkAnswer(selected) {
 function showSadMessage() {
   const quizContainer = document.getElementById("quiz");
   quizContainer.innerHTML = `
-    <h2 class="error-message">Com você errando eu fico triste 😭</h2>
-    <button onclick="loadQuestion()">Tentar de novo</button>
+    <div class="sad-message">
+      <h2>Com você errando eu fico triste 😭</h2>
+      <button class="retry-btn" onclick="loadQuestion()">Tentar novamente</button>
+    </div>
   `;
+  updateProgressBar();
 }
 
 function updateProgressBar() {
   const progress = ((currentQuestion) / questions.length) * 100;
-  const progressBar = document.getElementById("progress");
-  progressBar.style.width = progress > 100 ? "100%" : progress + "%";
+  document.getElementById("progress").style.width = progress + "%";
 }
-
-let timerInterval;
 
 function showFinalPage() {
   const quizContainer = document.getElementById("quiz");
+  const startDate = new Date("2025-03-19T00:00:00");
+
   quizContainer.innerHTML = `
     <div class="final-page">
       <h1>Parabéns, meu amor! 💖</h1>
+      <p>Você concluiu todas as fases!</p>
       <div class="decorations">🌹💗🌸💖🌼💘🌷</div>
       <p class="timer" id="timer">Calculando tempo juntos...</p>
       <div class="quote-final">
-        "Eu te amo não só pelo que você é, mas pelo que eu sou quando estou com você.  
-        Você desperta em mim o que há de mais profundo e belo, como os versos eternos dos grandes poetas.  
-        Em cada instante, sinto que nossa alma dança numa melodia única, onde cada batida é um suspiro de eternidade."  
-        <small>— Inspirado em trechos de Pablo Neruda e Rumi</small>
+        "Eu te amo não só pelo que você é, mas pelo que eu sou quando estou com você. <br><br>
+        Você desperta em mim o que há de mais profundo e belo, como os versos eternos dos grandes poetas. <br>
+        Em cada instante, sinto que nossa alma dança numa melodia única, onde cada batida é um suspiro de eternidade."<br><br>
+        <small>— Inspirado em Pablo Neruda e Rumi</small>
       </div>
     </div>
   `;
 
-  // Começa o contador dinâmico
   startRelationshipTimer();
-  updateProgressBar(); // garante barra 100%
+  updateProgressBar();
 }
 
 function startRelationshipTimer() {
@@ -144,7 +149,6 @@ function startRelationshipTimer() {
   function updateTimer() {
     const now = new Date();
     let diff = now - startDate;
-
     if (diff < 0) diff = 0;
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -155,8 +159,8 @@ function startRelationshipTimer() {
     timerEl.textContent = `Estamos juntos há ${days} dias, ${hours} horas, ${minutes} minutos e ${seconds} segundos! 🥰`;
   }
 
-  updateTimer(); // chama já uma vez ao iniciar
-  timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+  setInterval(updateTimer, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", loadQuestion);
